@@ -1,57 +1,119 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Image</title>
-  <script type="module" src="firebase-config.js"></script>
+  <title>إضافة صورة - KFS Juniors</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .upload-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 500px;
+      width: 100%;
+      margin: 50px auto;
+      text-align: center;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    #confirmBox {
+      display: none;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      text-align: center;
+      margin: 30px auto;
+    }
+    #confirmBox button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="logo.png" alt="School Logo" class="logo" />
+    <button onclick="navigate('index.html')">Home</button>
+    <button onclick="navigate('about.html')">About Us</button>
+    <button onclick="navigate('upload.html')">Add Photo + Comment</button>
+    <button onclick="navigate('gallery.html')">Gallery</button>
+    <button onclick="navigate('videos.html')">Videos</button>
+    <button onclick="navigate('students.html')">Student Cards</button>
+  </div>
+
+  <div class="main-content">
+    <div class="upload-box">
+      <h2>أضف صورة + حكمة أو وصف</h2>
+      <input type="file" id="imageInput" accept="image/*" />
+      <textarea id="captionInput" placeholder="اكتب وصف للصورة أو حكمة..." rows="4"></textarea>
+      <button onclick="submitPost()">إرسال</button>
+    </div>
+
+    <div id="confirmBox">
+      <p>استنى حسن محمد يقبلها بقا!</p>
+      <button onclick="closeConfirm()">OK</button>
+    </div>
+  </div>
+
   <script type="module">
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-    import { app } from "./firebase-config.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { app } from './firebase-config.js';
 
     const auth = getAuth(app);
-    const db = getFirestore(app);
     const storage = getStorage(app);
+    const db = getFirestore(app);
+    let currentUserEmail = "";
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-      }
+      if (user) currentUserEmail = user.email;
+      else window.location.href = "login.html";
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const file = document.getElementById("imageFile").files[0];
-        const caption = document.getElementById("caption").value;
+    window.submitPost = async function () {
+      const file = document.getElementById("imageInput").files[0];
+      const caption = document.getElementById("captionInput").value;
+      if (!file || !caption) return alert("يرجى رفع صورة وكتابة وصف");
 
-        if (!file) return alert("Please select an image.");
-        const storageRef = ref(storage, "pending/" + file.name);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
+      const storageRef = ref(storage, `pending/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
 
-        await addDoc(collection(db, "pendingImages"), {
-          url,
-          caption,
-          createdAt: serverTimestamp(),
-          uploader: auth.currentUser.email
-        });
-
-        alert("Image uploaded for review.");
-        document.getElementById("uploadForm").reset();
+      await addDoc(collection(db, "pendingImages"), {
+        url,
+        caption,
+        sender: currentUserEmail,
+        createdAt: new Date().toISOString(),
       });
-    });
+
+      document.querySelector(".upload-box").style.display = "none";
+      document.getElementById("confirmBox").style.display = "block";
+    }
+
+    window.closeConfirm = function () {
+      window.location.href = "index.html";
+    }
+
+    function navigate(page) {
+      window.location.href = page;
+    }
   </script>
-</head>
-<body style="padding:20px; font-family:sans-serif;">
-  <h2>Upload Your Photo</h2>
-  <form id="uploadForm">
-    <input type="file" id="imageFile" accept="image/*" required /><br><br>
-    <textarea id="caption" placeholder="Enter your quote or message..." required></textarea><br><br>
-    <button type="submit">Submit for Review</button>
-  </form>
 </body>
 </html>
