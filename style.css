@@ -1,0 +1,33 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  text-align: center;
+}
+.container {
+  padding: 20px;
+}
+nav a {
+  margin: 10px;
+  color: #0066cc;
+  text-decoration: none;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+table, th, td {
+  border: 1px solid #999;
+}
+th, td {
+  padding: 10px;
+}
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.item {
+  margin: 10px;
+}
