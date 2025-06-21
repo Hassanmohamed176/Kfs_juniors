@@ -1,18 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>جدول الطلاب</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFS Juniors - Student Cards</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="firebase-config.js"></script>
+  <style>
+    main {
+      margin-left: 220px;
+      padding: 40px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      width: 250px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      text-align: center;
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .card .info {
+      padding: 15px;
+    }
+    .card .info h3 {
+      margin: 10px 0 5px;
+      font-size: 18px;
+    }
+    .card .info p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
 </head>
-<body onload="checkPassword()">
-  <div class="container">
-    <h1>جدول الطلاب</h1>
-    <table>
-      <tr><th>الاسم</th><th>الصورة</th><th>تاريخ الميلاد</th></tr>
-      <tr><td>اسم الطالب</td><td><img src="student1.jpg" width="80"></td><td>01/01/2010</td></tr>
-    </table>
-    <a href="index.html">عودة</a>
-  </div>
+<body>
+  <!-- الشريط الجانبي للتنقل -->
+  <aside class="sidebar">
+    <img src="logo.png" alt="Logo" class="logo" />
+    <nav>
+      <a href="index.html">الرئيسية</a>
+      <a href="about.html">من نحن</a>
+      <a href="students.html" class="active">بطاقات الطلاب</a>
+      <a href="gallery.html">معرض الصور</a>
+      <a href="videos.html">فيديوهات</a>
+    </nav>
+  </aside>
+
+  <!-- الكروت -->
+  <main id="cardsContainer"></main>
+
+  <script type="module">
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { app } from './firebase-config.js';
+
+    const db = getFirestore(app);
+    const container = document.getElementById("cardsContainer");
+
+    async function loadCards() {
+      const snapshot = await getDocs(collection(db, "approvedStudents"));
+      let cards = [];
+      snapshot.forEach(doc => {
+        cards.push(doc.data());
+      });
+      // ترتيب عشوائي
+      cards = cards.sort(() => 0.5 - Math.random());
+
+      cards.forEach(card => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <img src="${card.imageUrl}" alt="Student Photo">
+          <div class="info">
+            <h3>${card.fullName}</h3>
+            <p>${card.birthDate}</p>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    loadCards();
+  </script>
 </body>
 </html>
