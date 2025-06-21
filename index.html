@@ -1,36 +1,110 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KFS Juniors - Login</title>
+  <title>KFS Juniors - Home</title>
   <script type="module" src="firebase-config.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    nav {
+      margin-bottom: 20px;
+    }
+    nav button {
+      margin-right: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #addImageBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #signOutBtn {
+      margin-top: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+  </style>
   <script type="module">
-    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
     import { app } from './firebase-config.js';
 
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
 
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("login").addEventListener("click", () => {
-        signInWithPopup(auth, provider).then((result) => {
-          const email = result.user.email;
-          if (email === "hassanmohamedssabbah15@gmail.com") {
-            window.location.href = "admin.html";
-          } else {
-            window.location.href = "upload.html";
-          }
-        }).catch((error) => {
-          alert("Login failed: " + error.message);
+    window.onload = () => {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const email = user.email;
+        document.getElementById("welcomeMsg").textContent = `Welcome, ${email}`;
+
+        if (email === "hassanmohamedssabbah15@gmail.com") {
+          document.getElementById("adminNotice").style.display = "block";
+        }
+      });
+
+      document.getElementById("signOutBtn").addEventListener("click", () => {
+        signOut(auth).then(() => {
+          window.location.href = "login.html";
         });
       });
-    });
+
+      document.getElementById("addImageBtn").addEventListener("click", () => {
+        window.location.href = "upload.html";
+      });
+
+      document.getElementById("btnAbout").addEventListener("click", () => {
+        window.location.href = "about.html";
+      });
+
+      document.getElementById("btnSchedule").addEventListener("click", () => {
+        window.location.href = "schedule.html";
+      });
+
+      document.getElementById("btnGallery").addEventListener("click", () => {
+        window.location.href = "gallery.html";
+      });
+
+      document.getElementById("btnVideos").addEventListener("click", () => {
+        window.location.href = "videos.html";
+      });
+    };
   </script>
 </head>
-<body style="text-align:center; padding:50px; font-family:sans-serif;">
-  <h1>Welcome to KFS Juniors</h1>
-  <button id="login">Sign in with Google</button>
+<body>
+  <header>
+    <h2 id="welcomeMsg">Welcome</h2>
+    <div id="adminNotice" style="display:none; color:red; font-weight:bold;">You are logged in as Admin</div>
+    <button id="signOutBtn">Sign Out</button>
+  </header>
+
+  <nav>
+    <button id="btnAbout">About Us</button>
+    <button id="btnSchedule">Student Schedule</button>
+    <button id="btnGallery">Gallery</button>
+    <button id="btnVideos">Videos</button>
+  </nav>
+
+  <button id="addImageBtn" title="Add Image with Caption">Add Image</button>
 </body>
 </html>
