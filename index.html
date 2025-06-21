@@ -188,3 +188,18 @@
   </script>
 </body>
 </html>
+<!-- أضف هذا داخل القائمة الجانبية -->
+<script type="module">
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import { app } from './firebase-config.js';
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === "hassanmohamedssabbah15@gmail.com") {
+      const adminLink = document.createElement("a");
+      adminLink.href = "admin.html";
+      adminLink.textContent = "لوحة الأدمن";
+      document.querySelector(".sidebar").appendChild(adminLink);
+    }
+  });
+</script>
