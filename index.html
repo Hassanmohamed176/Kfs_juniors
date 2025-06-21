@@ -108,3 +108,82 @@
   <button id="addImageBtn" title="Add Image with Caption">Add Image</button>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFS Juniors - Home</title>
+  <script type="module" src="firebase-config.js"></script>
+  <style>
+    body { font-family: sans-serif; margin:0;
+      background-image: url('https://lh3.googleusercontent.com/d/1-XWxpkCl9dGEStVamI04gEoC25HxEB2l');
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      height: 100vh; display: flex; justify-content: center; align-items: center;
+    }
+    .overlay {
+      background: rgba(255,255,255,0.85); padding: 30px 40px;
+      border-radius: 12px; max-width: 500px; width: 90%; text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 { margin-top: 0; }
+    .menu-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin: 20px 0;
+    }
+    .menu-grid button, #addImageBtn, #signOutBtn {
+      padding: 12px 20px; font-size: 16px; cursor: pointer;
+      border: none; border-radius: 6px; transition: background-color 0.3s;
+    }
+    .menu-grid button:hover, #addImageBtn:hover, #signOutBtn:hover {
+      opacity: 0.9;
+    }
+    .menu-grid button { background: #007bff; color: #fff; }
+    #addImageBtn {
+      background: #28a745; color: #fff; margin: 10px 0;
+      width: 100%;
+    }
+    #signOutBtn {
+      background: #dc3545; color: #fff;
+      margin-top: 10px;
+    }
+    #adminNotice { color: #d9534f; font-weight: bold; margin-bottom: 10px;}
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h2 id="welcomeMsg">Welcome</h2>
+    <div id="adminNotice" style="display:none;">You are logged in as Admin</div>
+    
+    <div class="menu-grid">
+      <button id="btnAbout">About Us</button>
+      <button id="btnSchedule">Student Schedule</button>
+      <button id="btnGallery">Gallery</button>
+      <button id="btnVideos">Videos</button>
+    </div>
+    
+    <button id="addImageBtn">Add Image</button>
+    <button id="signOutBtn">Sign Out</button>
+  </div>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { app } from './firebase-config.js';
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (!user) return window.location.href = "login.html";
+      document.getElementById("welcomeMsg").textContent = `Welcome, ${user.email}`;
+      if (user.email === "hassanmohamedssabbah15@gmail.com")
+        document.getElementById("adminNotice").style.display = "block";
+    });
+
+    document.getElementById("btnAbout").onclick = () => { window.location.href = "about.html" };
+    document.getElementById("btnSchedule").onclick = () => { window.location.href = "schedule.html" };
+    document.getElementById("btnGallery").onclick = () => { window.location.href = "gallery.html" };
+    document.getElementById("btnVideos").onclick = () => { window.location.href = "videos.html" };
+    document.getElementById("addImageBtn").onclick = () => { window.location.href = "upload.html" };
+    document.getElementById("signOutBtn").onclick = () => { signOut(auth).then(() => window.location.href = "login.html"); };
+  </script>
+</body>
+</html>
