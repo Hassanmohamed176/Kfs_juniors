@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { app } from "./firebase-config.js";
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user || user.email !== "hassanmohamedssabbah15@gmail.com") {
+        alert("Admins only.");
+        window.location.href = "index.html";
+        return;
+      }
+      const querySnapshot = await getDocs(collection(db, "pendingImages"));
+      const container = document.getElementById("pendingList");
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <img src="${data.url}" width="200"><br>
+          <i>${data.caption}</i><br>
+          <button onclick="approve('${docSnap.id}', '${data.url}', \`${data.caption}\`)">Approve</button>
+          <button onclick="reject('${docSnap.id}', '${data.url}')">Reject</button>
+          <hr>
+        `;
+        container.appendChild(div);
+      });
+    });
+
+    window.approve = async function (id, url, caption) {
+      await addDoc(collection(db, "approvedImages"), {
+        url,
+        caption,
+      });
+      await deleteDoc(doc(db, "pendingImages", id));
+      alert("Approved.");
+      location.reload();
+    };
+
+    window.reject = async function (id, url) {
+      const storageRef = ref(storage, url);
+      deleteObject(storageRef).catch(()=>{});
+      await deleteDoc(doc(db, "pendingImages", id));
+      alert("Rejected.");
+      location.reload();
+    };
+  </script>
+</head>
+<body style="padding:20px; font-family:sans-serif;">
+  <h2>Admin Review Panel</h2>
+  <div id="pendingList"></div>
+</body>
+</html>
