@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KFS Juniors - Login</title>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { app } from './firebase-config.js';
+
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("login").addEventListener("click", () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            // بعد تسجيل الدخول، توجيه الجميع للصفحة الرئيسية
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            alert("Login failed: " + error.message);
+          });
+      });
+    });
+  </script>
+</head>
+<body style="text-align:center; padding:50px; font-family:sans-serif;">
+  <h1>Welcome to KFS Juniors</h1>
+  <button id="login">Sign in with Google</button>
+</body>
+</html>
